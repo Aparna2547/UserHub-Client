@@ -1,8 +1,19 @@
-import React,{useState} from "react";
+import React,{useEffect, useState} from "react";
 import AddUser from "../../Components/AddUser";
+import Api from "../../Services/axios";
 
 const UsersList = () => {
     const [modal,setModal] = useState(false)
+    const [users,setUsers] = useState([])
+
+    useEffect(()=>{
+      const fetchUsers = async () =>{
+        const res = await Api.get('/users')
+        console.log(res.data)
+        setUsers(res.data)
+      }
+      fetchUsers()
+    },[])
   return (
     <>
       <div className="bg-gray-100 min-h-screen">
@@ -37,36 +48,23 @@ const UsersList = () => {
               </tr>
             </thead>
             <tbody>
-              <tr className="bg-white text-gray-800 border-b-2 ">
-              
-                <td className="px-6 py-4 ">trt</td>
-                <td className="px-6 py-4">trt</td>
-                <td className="px-6 py-4">trt</td>
-                <td className="px-6 py-4">trt</td>
-                <td className="px-6 py-4">trt</td>
-                <td className="px-6 py-4">trt</td>
-                <td className="px-6 py-4">tesss</td>
-                <td className="px-6 py-4">
-                  <a className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                    test
-                  </a>
-                </td>
-              </tr>
-              <tr className="bg-white text-gray-800 border-b-2 ">
-              
-              <td className="px-6 py-4 ">trt</td>
-              <td className="px-6 py-4">trt</td>
-              <td className="px-6 py-4">trt</td>
-              <td className="px-6 py-4">trt</td>
-              <td className="px-6 py-4">trt</td>
-              <td className="px-6 py-4">trt</td>
-              <td className="px-6 py-4">tesss</td>
-              <td className="px-6 py-4">
-                <a className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                  test
-                </a>
-              </td>
-            </tr>
+
+            {users && users.map((user, index) => (
+    <tr key={index} className="bg-white text-gray-800 border-b-2">
+        <td className="px-6 py-4">{user.name}</td>
+        <td className="px-6 py-4">{user.email}</td>
+        <td className="px-6 py-4">{user.mobile}</td>
+        <td className="px-6 py-4">{user.role}</td>
+        <td className="px-6 py-4">{user.department}</td>
+        <td className="px-6 py-4">{new Date(user.dateOfBirth).toDateString()}</td>
+        <td className="px-6 py-4">{new Date(user.dateOfJoining).toDateString()}</td>
+        <td className="px-6 py-4">
+            <a className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                {user.description}
+            </a>
+        </td>
+    </tr>
+))}
 
             </tbody>
           </table>
