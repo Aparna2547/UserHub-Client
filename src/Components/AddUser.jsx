@@ -1,33 +1,31 @@
 import React, { useEffect, useState } from "react";
 import Error from "./Error";
 import Api from "../Services/axios";
-
+import { toast } from "sonner";
 
 const AddUser = ({ setModal }) => {
   const [formData, setFormData] = useState({
     name: "",
-    email:'',
-    mobile:'',
-    dateOfBirth:'',
-    dateOfJoining:'',
-    department:'',
-    description:'',
+    email: "",
+    mobile: "",
+    dateOfBirth: "",
+    dateOfJoining: "",
+    department: "",
+    description: "",
     role: "",
-
   });
-  const [data,setData] = useState([])
+  const [data, setData] = useState([]);
   const [results, setResults] = useState([]);
   const [errors, setErrors] = useState({});
 
-  useEffect(()=>{
-    const fetchDepartments = async()=>{
-      const response  = await Api.get('/departments')
-    console.log('helo',response.data[0].department);
-    setData(response.data[0].department)
-    }
-    fetchDepartments()
-  },[])
-
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      const response = await Api.get("/departments");
+      console.log("helo", response.data[0].department);
+      setData(response.data[0].department);
+    };
+    fetchDepartments();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -66,22 +64,26 @@ const AddUser = ({ setModal }) => {
 
     // Update state with errors if any
     if (Object.keys(errors).length > 0) {
-      console.log('inside er')
+      console.log("inside er");
       setErrors(errors);
       return;
     }
 
     try {
-       const response = await Api.post('/addUser', formData);
-       console.log(response)
-       setModal(false)
+      const response = await Api.post("/addUser", formData);
+      console.log(response);
+      setModal(false);
+      toast.success("User added succesfully")
     } catch (error) {
-       if (error.response && error.response.data && error.response.data.errors) {
-         setErrors(error.response.data.errors);
-       } else {
-         // Handle other errors, e.g., network issues
-         console.error('An error occurred:', error);
-       }
+      if (error.response && error.response.data && error.response.data.errors) {
+        setErrors(error.response.data.errors);
+      }
+      if (!error.response.data.status) {
+        console.log("ser");
+        toast.error("email already exist");
+      } else {
+        console.error("An error occurred:", error);
+      }
     }
   };
 
@@ -188,48 +190,55 @@ const AddUser = ({ setModal }) => {
 
           <div className="flex gap-2">
             <div className="block w-full">
-          <div className="w-full">
-          <input
-                id="department"
-                name="department"
-                type="text"
-                className=" mt-2   text-gray-600 focus:outline-none focus:border focus:border-indigo-700 font-normal w-full h-10 flex items-center pl-3 text-sm border-gray-300 rounded border"
-                placeholder="Enter department"
-                value={formData.department}
-                onChange={handleInputChange}
-              />
-              <div className="mt-0 border">
-                {results.length > 0 && (
-                  <ul className="dropdown-menu">
-                    {results.map((result, index) => (
-                      <li
-                        key={index}
-                        className="p-1"
-                        onClick={() =>
-                          setFormData({ ...formData, department: result })
-                        }
-                      >
-                        {result}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+              <div className="w-full">
+                <input
+                  id="department"
+                  name="department"
+                  type="text"
+                  className=" mt-2   text-gray-600 focus:outline-none focus:border focus:border-indigo-700 font-normal w-full h-10 flex items-center pl-3 text-sm border-gray-300 rounded border"
+                  placeholder="Enter department"
+                  value={formData.department}
+                  onChange={handleInputChange}
+                />
+                <div className="mt-0 border">
+                  {results.length > 0 && (
+                    <ul className="dropdown-menu">
+                      {results.map((result, index) => (
+                        <li
+                          key={index}
+                          className="p-1"
+                          onClick={() =>
+                            setFormData({ ...formData, department: result })
+                          }
+                        >
+                          {result}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                {errors.department && <Error error={errors.department} />}
               </div>
-            {errors.department && <Error error={errors.department} />}
-
-          </div>
             </div>
 
-              <div className="w-full">
-                <select name="role" id="" value={formData.role} onChange={handleInputChange} className=" mt-2 text-gray-600 focus:outline-none focus:border focus:border-indigo-700 font-normal w-full h-10 flex items-center pl-3 text-sm border-gray-300 rounded border">
-                  <option value="developer">developer</option>
-                  <option value="debbuging">Debugging</option>
-                  <option value="tester">Tester</option>
-                  <option value="designer">Designer</option>
-                </select>
-              </div>
+            <div className="w-full">
+              <select
+                name="role"
+                id=""
+                value={formData.role}
+                onChange={handleInputChange}
+                className=" mt-2 text-gray-600 focus:outline-none focus:border focus:border-indigo-700 font-normal w-full h-10 flex items-center pl-3 text-sm border-gray-300 rounded border"
+              >
+                <option value="frontenddeveloper">Frontend Developer</option>
+                <option value="backenddeveloper">Backend Developer</option>
+                <option value="fullstack">Full Satck developer</option>
+                <option value="devops">DevOps Engineer</option>
+                <option value="qualityassurance"> QA Engineer</option>
+                <option value="recruiter">Recruiter</option>
+                <option value="hrcordinator">HR Coordinator</option>
+              </select>
+            </div>
             {errors.role && <Error error={errors.role} />}
-
           </div>
 
           <div className="border border-gray-300 p-2 mt-2">
@@ -242,8 +251,7 @@ const AddUser = ({ setModal }) => {
               value={formData.description}
               onChange={handleInputChange}
             ></textarea>
-              {errors.description && <Error error={errors.description} />}
-
+            {errors.description && <Error error={errors.description} />}
           </div>
           <div className="flex items-center justify-start w-full">
             <button
